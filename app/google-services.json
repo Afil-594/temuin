@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "57352445974",
+    "firebase_url": "https://projectpam-50531-default-rtdb.firebaseio.com",
+    "project_id": "projectpam-50531",
+    "storage_bucket": "projectpam-50531.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57352445974:android:0a22c608279c701f795537",
+        "android_client_info": {
+          "package_name": "com.example.temuin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPcR2ezuniLz6vLAwF4Tn5WHV6TYBKLek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

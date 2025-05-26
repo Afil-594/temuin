@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_barang"
+        android:icon="@drawable/ic_barang"
+        android:title="Barang Hilang"
+        android:fontFamily="@font/poppins_regular"/>
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+    <item
+        android:id="@+id/nav_laporan"
+        android:icon="@drawable/ic_laporan"
+        android:title="Lapor Kehilangan" />
+</menu>
