@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +17,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Temuin"
         tools:targetApi="31">
+        <activity
+            android:name=".admin.AdminItemDetailLostActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminItemDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.LaporKehilanganActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.LaporPenemuanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PanduanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".lost.ReportLostItemActivity"
+            android:exported="false" />
+        <activity
+            android:name=".lost.DetailItemLostActivity"
+            android:exported="false" />
+        <activity
+            android:name=".lost.LostItemsListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".found.ReportFoundItemActivity"
+            android:exported="true" />
+        <activity
+            android:name=".found.DetailItemActivity"
+            android:exported="true" />
+        <activity
+            android:name=".found.FoundItemsListActivity"
+            android:exported="true" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />

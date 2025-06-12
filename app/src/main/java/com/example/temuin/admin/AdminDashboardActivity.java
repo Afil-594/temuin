@@ -1,4 +1,4 @@
-package com.example.temuin;
+package com.example.temuin.admin;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.temuin.LoginActivity;
+import com.example.temuin.R;
 import com.example.temuin.found.FoundItemsListActivity;
 import com.example.temuin.found.ReportFoundItemActivity;
 import com.example.temuin.lost.LostItemsListActivity;
@@ -25,14 +27,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 
-public class HomeActivity extends AppCompatActivity {
+public class AdminDashboardActivity extends AppCompatActivity {
     private ImageView btnProfile;
     private LinearLayout profileOverlay;
     private Button btnLogout;
     private TextView tvNama, tvJurusan, tvEmail, tvWelcome;
     private FirebaseAuth mAuth;
     private DatabaseReference dbRef;
-    private LinearLayout cardDaftarBarang, cardDaftarBarangHilang, cardPanduan;
+    private LinearLayout cardDaftarBarang, cardDaftarBarangHilang, cardLaporPenemuan, cardLaporKehilangan;
 
     private String currentRole = "user"; // default
 
@@ -40,7 +42,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_admin_dashboard);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -60,7 +62,8 @@ public class HomeActivity extends AppCompatActivity {
         tvEmail = findViewById(R.id.tvEmail);
         cardDaftarBarang = findViewById(R.id.cardDaftarBarang);
         cardDaftarBarangHilang = findViewById(R.id.cardDaftarBarangHilang);
-        cardPanduan = findViewById(R.id.cardPanduan);
+        cardLaporPenemuan = findViewById(R.id.cardLaporPenemuan);
+        cardLaporKehilangan = findViewById(R.id.cardLaporKehilangan);
 
         // Ambil data user dari Realtime DB
         FirebaseUser user = mAuth.getCurrentUser();
@@ -68,27 +71,20 @@ public class HomeActivity extends AppCompatActivity {
             dbRef.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        String nama = snapshot.child("nama").getValue(String.class);
-                        String jurusan = snapshot.child("jurusan").getValue(String.class);
-                        String email = snapshot.child("email").getValue(String.class);
-                        currentRole = snapshot.child("role").getValue(String.class);
-
-                        tvWelcome.setText("Selamat Datang, " + (nama != null ? nama : "Pengguna"));
-                        tvNama.setText(nama != null ? nama : "-");
-                        tvJurusan.setText(jurusan != null ? jurusan : "-");
-                        tvEmail.setText(email != null ? email : "-");
-
-                        // (Opsional) Tampilkan status admin
-                        if ("admin".equals(currentRole)) {
-                            Toast.makeText(HomeActivity.this, "Akun ini adalah admin", Toast.LENGTH_SHORT).show();
-                        }
+                    String role = snapshot.child("role").getValue(String.class);
+                    if (!"admin".equals(role)) {
+                        Toast.makeText(AdminDashboardActivity.this, "Akses hanya untuk admin", Toast.LENGTH_SHORT).show();
+                        finish(); // keluar dari halaman
+                    }
+                    else {
+                        Toast.makeText(AdminDashboardActivity.this, "Selamat datang, Admin", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(HomeActivity.this, "Gagal memuat data profil", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminDashboardActivity.this, "Gagal cek role", Toast.LENGTH_SHORT).show();
+                    finish();
                 }
             });
         }
@@ -99,25 +95,26 @@ public class HomeActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+            startActivity(new Intent(AdminDashboardActivity.this, LoginActivity.class));
             finish();
         });
 
-        cardDaftarBarang.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, FoundItemsListActivity.class)));
-        cardDaftarBarangHilang.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, LostItemsListActivity.class)));
-        cardPanduan.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, PanduanActivity.class)));
+        cardDaftarBarang.setOnClickListener(v -> startActivity(new Intent(AdminDashboardActivity.this, FoundItemsListActivity.class)));
+        cardDaftarBarangHilang.setOnClickListener(v -> startActivity(new Intent(AdminDashboardActivity.this, LostItemsListActivity.class)));
+        cardLaporPenemuan.setOnClickListener(v -> startActivity(new Intent(AdminDashboardActivity.this, LaporPenemuanActivity.class)));
+        cardLaporKehilangan.setOnClickListener(v -> startActivity(new Intent(AdminDashboardActivity.this, LaporKehilanganActivity.class)));
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
-                startActivity(new Intent(HomeActivity.this, FoundItemsListActivity.class));
+                startActivity(new Intent(AdminDashboardActivity.this, FoundItemsListActivity.class));
                 finish();
                 return true;
             } else if (id == R.id.nav_home) {
                 return true;
             } else if (id == R.id.nav_laporan) {
-                startActivity(new Intent(HomeActivity.this, LostItemsListActivity.class));
+                startActivity(new Intent(AdminDashboardActivity.this, LostItemsListActivity.class));
                 finish();
                 return true;
             }
