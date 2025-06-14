@@ -3,6 +3,7 @@ package com.example.temuin.admin;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ public class LaporKehilanganActivity extends AppCompatActivity {
     private AdminLostItemAdapter adapter;
     private List<LostItem> itemList;
     private FloatingActionButton fabAdd;
+    private ImageButton btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class LaporKehilanganActivity extends AppCompatActivity {
 
         itemList = new ArrayList<>();
         adapter = new AdminLostItemAdapter(this, itemList);
+        btnBack = findViewById(R.id.btn_back);
         recyclerView.setAdapter(adapter);
         fabAdd = findViewById(R.id.fab_add);
 
@@ -65,20 +68,21 @@ public class LaporKehilanganActivity extends AppCompatActivity {
 
         loadPendingReports();
 
+        btnBack.setOnClickListener(v -> finish());
+
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_hilang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
-                startActivity(new Intent(LaporKehilanganActivity.this, FoundItemsListActivity.class));
+                startActivity(new Intent(LaporKehilanganActivity.this, LaporPenemuanActivity.class));
                 finish();
                 return true;
             } else if (id == R.id.nav_home) {
                 startActivity(new Intent(LaporKehilanganActivity.this, AdminDashboardActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
-                startActivity(new Intent(LaporKehilanganActivity.this, LostItemsListActivity.class));
-                finish();
+            } else if (id == R.id.nav_hilang) {
                 return true;
             }
             return false;
@@ -88,8 +92,6 @@ public class LaporKehilanganActivity extends AppCompatActivity {
     private void loadPendingReports() {
         FirebaseDatabase.getInstance()
                 .getReference("lost_items")
-                .orderByChild("status")
-                .equalTo("belum diverifikasi")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -97,9 +99,26 @@ public class LaporKehilanganActivity extends AppCompatActivity {
                         for (DataSnapshot data : snapshot.getChildren()) {
                             LostItem item = data.getValue(LostItem.class);
                             if (item != null) {
+                                if (item.isAdminArchived()) {
+                                    continue;
+                                }
                                 itemList.add(item);
                             }
                         }
+                        java.util.Collections.sort(itemList, (item1, item2) -> {
+                            String status1 = item1.getStatus();
+                            String status2 = item2.getStatus();
+
+                            int weight1 = status1.equals("belum diverifikasi") ? 0 :
+                                    status1.equals("diverifikasi") ? 1 :
+                                            status1.equals("ditolak") ? 2 : 3;
+
+                            int weight2 = status2.equals("belum diverifikasi") ? 0 :
+                                    status2.equals("diverifikasi") ? 1 :
+                                            status2.equals("ditolak") ? 2 : 3;
+
+                            return Integer.compare(weight1, weight2);
+                        });
                         adapter.notifyDataSetChanged();
                     }
 

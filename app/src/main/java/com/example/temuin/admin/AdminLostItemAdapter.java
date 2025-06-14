@@ -51,7 +51,7 @@ public class AdminLostItemAdapter extends RecyclerView.Adapter<AdminLostItemAdap
         holder.tvStatus.setText(statusText);
 
         // Mengatur background berdasarkan status
-        if ("dikembalikan".equals(statusText)) {
+        if ("diverifikasi".equals(statusText)) {
             holder.tvStatus.setBackgroundResource(R.drawable.bg_status_green);
         } else {
             holder.tvStatus.setBackgroundResource(R.drawable.bg_status_red);
@@ -81,7 +81,6 @@ public class AdminLostItemAdapter extends RecyclerView.Adapter<AdminLostItemAdap
                 intent.putExtra("ITEM_NAMA_BARANG", item.getNamaBarang() != null ? item.getNamaBarang() : "");
                 intent.putExtra("ITEM_LOCATION", item.getLocation() != null ? item.getLocation() : "");
                 intent.putExtra("ITEM_DATE", item.getDate() != null ? item.getDate() : "");
-                intent.putExtra("ITEM_TIME", item.getTime() != null ? item.getTime() : "");
                 intent.putExtra("ITEM_IMAGE", item.getImagePath() != null ? item.getImagePath() : "");
                 intent.putExtra("ITEM_STATUS", statusText);
                 ((Activity) context).startActivity(intent);

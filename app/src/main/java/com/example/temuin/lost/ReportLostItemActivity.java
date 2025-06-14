@@ -42,7 +42,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class ReportLostItemActivity extends AppCompatActivity {
-    private EditText etName, etNoHp, etNamaBarang, etLocation, etDate, etTime;
+    private EditText etName, etNoHp, etNamaBarang, etLocation, etDate;
     private ImageView ivItemImage;
     private Button btnSubmit;
     private DatabaseReference databaseReference;
@@ -61,11 +61,10 @@ public class ReportLostItemActivity extends AppCompatActivity {
         etNamaBarang = findViewById(R.id.et_nama_barang);
         etLocation = findViewById(R.id.et_location);
         etDate = findViewById(R.id.et_date);
-        etTime = findViewById(R.id.et_time);
         ivItemImage = findViewById(R.id.iv_item_image);
         btnSubmit = findViewById(R.id.btn_submit);
 
-        if (etName == null || etNoHp == null || etNamaBarang == null || etLocation == null || etDate == null || etTime == null || ivItemImage == null || btnSubmit == null) {
+        if (etName == null || etNoHp == null || etNamaBarang == null || etLocation == null || etDate == null || ivItemImage == null || btnSubmit == null) {
             Log.e("ReportLostItemActivity", "Salah satu elemen UI tidak ditemukan");
             Toast.makeText(this, "Error: Elemen UI tidak ditemukan", Toast.LENGTH_SHORT).show();
             return;
@@ -137,9 +136,8 @@ public class ReportLostItemActivity extends AppCompatActivity {
             String namaBarang = etNamaBarang.getText().toString().trim();
             String location = etLocation.getText().toString().trim();
             String date = etDate.getText().toString().trim();
-            String time = etTime.getText().toString().trim();
 
-            if (name.isEmpty() ||  noHp.isEmpty() ||  namaBarang.isEmpty() || location.isEmpty() || date.isEmpty() || time.isEmpty()) {
+            if (name.isEmpty() ||  noHp.isEmpty() ||  namaBarang.isEmpty() || location.isEmpty() || date.isEmpty()) {
                 Toast.makeText(this, "Semua field harus diisi", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -152,7 +150,7 @@ public class ReportLostItemActivity extends AppCompatActivity {
             String userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                     FirebaseAuth.getInstance().getCurrentUser().getUid() : "anonymous";
             String itemId = databaseReference.push().getKey();
-            LostItem item = new LostItem(itemId, name, noHp, namaBarang, location, date, time, imagePath, "belum diverifikasi", "hilang", userId);
+            LostItem item = new LostItem(itemId, name, noHp, namaBarang, location, date, imagePath, "belum diverifikasi", "hilang", userId);
 
             databaseReference.child(itemId).setValue(item)
                     .addOnSuccessListener(aVoid -> {
@@ -168,6 +166,7 @@ public class ReportLostItemActivity extends AppCompatActivity {
 
         // Bottom Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_hilang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
@@ -178,7 +177,7 @@ public class ReportLostItemActivity extends AppCompatActivity {
                 startActivity(new Intent(ReportLostItemActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 startActivity(new Intent(ReportLostItemActivity.this, LostItemsListActivity.class));
                 finish();
                 return true;

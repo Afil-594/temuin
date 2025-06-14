@@ -16,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.temuin.HomeActivity;
 import com.example.temuin.LoginActivity;
 import com.example.temuin.R;
 import com.example.temuin.found.FoundItemsListActivity;
@@ -36,7 +37,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private DatabaseReference dbRef;
     private LinearLayout cardDaftarBarang, cardDaftarBarangHilang, cardLaporPenemuan, cardLaporKehilangan;
 
-    private String currentRole = "user"; // default
+    private String currentRole = "user";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,26 +66,27 @@ public class AdminDashboardActivity extends AppCompatActivity {
         cardLaporPenemuan = findViewById(R.id.cardLaporPenemuan);
         cardLaporKehilangan = findViewById(R.id.cardLaporKehilangan);
 
-        // Ambil data user dari Realtime DB
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             dbRef.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String role = snapshot.child("role").getValue(String.class);
-                    if (!"admin".equals(role)) {
-                        Toast.makeText(AdminDashboardActivity.this, "Akses hanya untuk admin", Toast.LENGTH_SHORT).show();
-                        finish(); // keluar dari halaman
-                    }
-                    else {
-                        Toast.makeText(AdminDashboardActivity.this, "Selamat datang, Admin", Toast.LENGTH_SHORT).show();
+                    if (snapshot.exists()) {
+                        String nama = snapshot.child("nama").getValue(String.class);
+                        String jurusan = snapshot.child("jurusan").getValue(String.class);
+                        String email = snapshot.child("email").getValue(String.class);
+                        currentRole = snapshot.child("role").getValue(String.class);
+
+                        tvWelcome.setText("Selamat Datang, " + (nama != null ? nama : "Pengguna"));
+                        tvNama.setText(nama != null ? nama : "-");
+                        tvJurusan.setText(jurusan != null ? jurusan : "-");
+                        tvEmail.setText(email != null ? email : "-");
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(AdminDashboardActivity.this, "Gagal cek role", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Toast.makeText(AdminDashboardActivity.this, "Gagal memuat data profil", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -108,13 +110,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
-                startActivity(new Intent(AdminDashboardActivity.this, FoundItemsListActivity.class));
+                startActivity(new Intent(AdminDashboardActivity.this, LaporPenemuanActivity.class));
                 finish();
                 return true;
             } else if (id == R.id.nav_home) {
                 return true;
-            } else if (id == R.id.nav_laporan) {
-                startActivity(new Intent(AdminDashboardActivity.this, LostItemsListActivity.class));
+            } else if (id == R.id.nav_hilang) {
+                startActivity(new Intent(AdminDashboardActivity.this, LaporKehilanganActivity.class));
                 finish();
                 return true;
             }

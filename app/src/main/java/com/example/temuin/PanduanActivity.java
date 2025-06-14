@@ -26,16 +26,18 @@ public class PanduanActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> finish());
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_home);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
-                // Sudah di halaman ini
+                startActivity(new Intent(PanduanActivity.this, FoundItemsListActivity.class));
+                finish();
                 return true;
             } else if (id == R.id.nav_home) {
                 startActivity(new Intent(PanduanActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 Intent intent = new Intent(PanduanActivity.this, LostItemsListActivity.class);
                 startActivity(intent);
                 finish();

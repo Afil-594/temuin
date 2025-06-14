@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -21,7 +22,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AdminItemDetailActivity extends AppCompatActivity {
 
@@ -56,41 +61,63 @@ public class AdminItemDetailActivity extends AppCompatActivity {
 
         databaseReference = FirebaseDatabase.getInstance().getReference("found_items").child(itemId);
 
-        tampilkanDetailItem();
+        setupRealtimeDataAndViewListener();
 
         btnVerifikasi.setOnClickListener(v -> {
-            databaseReference.child("status").setValue("diverifikasi")
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Laporan berhasil diverifikasi", Toast.LENGTH_SHORT).show();
-                        finish();
+            new AlertDialog.Builder(this)
+                    .setTitle("Verifikasi Laporan")
+                    .setMessage("Apakah Anda yakin ingin memverifikasi laporan ini?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("status", "diverifikasi");
+                        updates.put("verifiedTimestamp", ServerValue.TIMESTAMP);
+
+                        databaseReference.updateChildren(updates)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Laporan berhasil diverifikasi", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this, "Gagal memverifikasi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                     })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Gagal memverifikasi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .setNegativeButton("Batal", null)
+                    .show();
         });
 
         btnTolak.setOnClickListener(v -> {
-            databaseReference.child("status").setValue("ditolak")
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Laporan berhasil ditolak", Toast.LENGTH_SHORT).show();
-                        finish();
+            new AlertDialog.Builder(this)
+                    .setTitle("Tolak Laporan")
+                    .setMessage("Apakah Anda yakin ingin menolak laporan ini?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("status", "ditolak");
+                        updates.put("rejectedTimestamp", ServerValue.TIMESTAMP); // <-- TAMBAHKAN INI
+
+                        databaseReference.updateChildren(updates)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Laporan ditolak", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Gagal menolak laporan: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
                     })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Gagal menolak laporan: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .setNegativeButton("Batal", null)
+                    .show();
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_barang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
-                startActivity(new Intent(AdminItemDetailActivity.this, FoundItemsListActivity.class));
+                startActivity(new Intent(AdminItemDetailActivity.this, LaporPenemuanActivity.class));
                 finish();
                 return true;
             } else if (id == R.id.nav_home) {
                 startActivity(new Intent(AdminItemDetailActivity.this, AdminDashboardActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
-                startActivity(new Intent(AdminItemDetailActivity.this, LostItemsListActivity.class));
+            } else if (id == R.id.nav_hilang) {
+                startActivity(new Intent(AdminItemDetailActivity.this, LaporKehilanganActivity.class));
                 finish();
                 return true;
             }
@@ -98,17 +125,35 @@ public class AdminItemDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void tampilkanDetailItem() {
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void setupRealtimeDataAndViewListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    Toast.makeText(AdminItemDetailActivity.this, "Data tidak ditemukan atau telah diarsipkan", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+
                 FoundItem item = snapshot.getValue(FoundItem.class);
                 if (item != null) {
+                    // Set data ke TextViews
                     tvName.setText(item.getName());
                     tvLocation.setText(item.getLocation());
                     tvDate.setText(item.getDate());
                     tvTime.setText(item.getTime());
                     tvStatus.setText(item.getStatus());
+
+                    // Logika visibilitas tombol
+                    String status = item.getStatus();
+                    if ("belum diverifikasi".equals(status)) {
+                        btnVerifikasi.setVisibility(View.VISIBLE);
+                        btnTolak.setVisibility(View.VISIBLE);
+                    } else {
+                        // Jika statusnya bukan "belum diverifikasi", sembunyikan kedua tombol
+                        btnVerifikasi.setVisibility(View.GONE);
+                        btnTolak.setVisibility(View.GONE);
+                    }
 
                     if (item.getImagePath() != null) {
                         Glide.with(AdminItemDetailActivity.this)

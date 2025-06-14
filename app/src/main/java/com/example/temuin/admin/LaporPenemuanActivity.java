@@ -74,10 +74,7 @@ public class LaporPenemuanActivity extends AppCompatActivity {
         adapter = new AdminFoundItemAdapter(this, foundItemList);
         rvFoundItems.setAdapter(adapter);
 
-        Query databaseReference = FirebaseDatabase.getInstance()
-                .getReference("found_items")
-                .orderByChild("status")
-                .equalTo("diverifikasi");
+        Query databaseReference = FirebaseDatabase.getInstance().getReference("found_items");
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -85,9 +82,26 @@ public class LaporPenemuanActivity extends AppCompatActivity {
                 for (DataSnapshot data : snapshot.getChildren()) {
                     FoundItem item = data.getValue(FoundItem.class);
                     if (item != null) {
+                        if (item.isAdminArchived()) {
+                            continue;
+                        }
                         foundItemList.add(item);
                     }
                 }
+                java.util.Collections.sort(foundItemList, (item1, item2) -> {
+                    String status1 = item1.getStatus();
+                    String status2 = item2.getStatus();
+
+                    int weight1 = status1.equals("belum diverifikasi") ? 0 :
+                            status1.equals("diverifikasi") ? 1 :
+                                    status1.equals("ditolak") ? 2 : 3;
+
+                    int weight2 = status2.equals("belum diverifikasi") ? 0 :
+                            status2.equals("diverifikasi") ? 1 :
+                                    status2.equals("ditolak") ? 2 : 3;
+
+                    return Integer.compare(weight1, weight2);
+                });
                 adapter.notifyDataSetChanged();
             }
 
@@ -125,6 +139,7 @@ public class LaporPenemuanActivity extends AppCompatActivity {
 
         // Bottom Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_barang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
@@ -133,7 +148,7 @@ public class LaporPenemuanActivity extends AppCompatActivity {
                 startActivity(new Intent(LaporPenemuanActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 Intent intent = new Intent(LaporPenemuanActivity.this, LaporKehilanganActivity.class);
                 startActivity(intent);
                 finish();
@@ -141,6 +156,5 @@ public class LaporPenemuanActivity extends AppCompatActivity {
             }
             return false;
         });
-        // bottomNav.setSelectedItemId(R.id.nav_barang); // Set item aktif
     }
 }

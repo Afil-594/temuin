@@ -27,7 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class DetailItemLostActivity extends AppCompatActivity {
-    private TextView tvName, tvNoHp, tvNamaBarang, tvLocation, tvDate, tvTime, tvDescription, tvStatus;
+    private TextView tvName, tvNoHp, tvNamaBarang, tvLocation, tvDate, tvStatus;
     private ImageView ivItemImage;
     private Button btnClaim;
     private DatabaseReference databaseReference;
@@ -43,7 +43,6 @@ public class DetailItemLostActivity extends AppCompatActivity {
         tvNamaBarang = findViewById(R.id.tv_detail_nama_barang);
         tvLocation = findViewById(R.id.tv_detail_location);
         tvDate = findViewById(R.id.tv_detail_date);
-        tvTime = findViewById(R.id.tv_detail_time);
         tvStatus = findViewById(R.id.tv_detail_status);
         ivItemImage = findViewById(R.id.iv_detail_image);
         btnClaim = findViewById(R.id.btn_claim);
@@ -69,7 +68,6 @@ public class DetailItemLostActivity extends AppCompatActivity {
                     tvNamaBarang.setText(item.getNamaBarang() != null ? item.getNamaBarang() : "Tidak ada nama barang");
                     tvLocation.setText(item.getLocation() != null ? item.getLocation() : "Tidak ada lokasi");
                     tvDate.setText(item.getDate() != null ? item.getDate() : "Tidak ada tanggal");
-                    tvTime.setText(item.getTime() != null ? item.getTime() : "Tidak ada waktu");
                     tvStatus.setText(item.getProgress() != null ? item.getProgress().toLowerCase() : "unknown");
                     if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
                         Glide.with(DetailItemLostActivity.this).load("file://" + item.getImagePath()).into(ivItemImage);
@@ -125,6 +123,7 @@ public class DetailItemLostActivity extends AppCompatActivity {
 
         // Bottom Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_hilang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
@@ -135,7 +134,7 @@ public class DetailItemLostActivity extends AppCompatActivity {
                 startActivity(new Intent(DetailItemLostActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 Intent intent = new Intent(DetailItemLostActivity.this, LostItemsListActivity.class);
                 startActivity(intent);
                 finish();

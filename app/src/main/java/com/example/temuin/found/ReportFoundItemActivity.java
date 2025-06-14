@@ -154,7 +154,6 @@ public class ReportFoundItemActivity extends AppCompatActivity {
             databaseReference.child(itemId).setValue(item)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Barang berhasil dilaporkan", Toast.LENGTH_SHORT).show();
-                        // Arahkan ke FoundItemsListActivity
                         Intent intent = new Intent(ReportFoundItemActivity.this, FoundItemsListActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
@@ -165,6 +164,7 @@ public class ReportFoundItemActivity extends AppCompatActivity {
 
         // Bottom Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_barang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
@@ -175,7 +175,7 @@ public class ReportFoundItemActivity extends AppCompatActivity {
                 startActivity(new Intent(ReportFoundItemActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 Intent intent = new Intent(ReportFoundItemActivity.this, LostItemsListActivity.class);
                 startActivity(intent);
                 finish();

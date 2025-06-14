@@ -7,9 +7,12 @@ public class FoundItem {
     private String date;
     private String time;
     private String imagePath;
-    private String status;     // Untuk verifikasi: "belum diverifikasi", "diverifikasi", "ditolak"
-    private String progress;   // Untuk tampilan UI: "ditemukan", "diklaim"
+    private String status;
+    private String progress;
     private String userId;
+    private long verifiedTimestamp;
+    private long rejectedTimestamp;
+    private boolean adminArchived  = false;
 
     public FoundItem() {
         // Default constructor untuk Firebase
@@ -54,4 +57,23 @@ public class FoundItem {
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    public long getRejectedTimestamp() {
+        return rejectedTimestamp;
+    }
+    public void setRejectedTimestamp(long rejectedTimestamp) {
+        this.rejectedTimestamp = rejectedTimestamp;
+    }
+
+    public long getVerifiedTimestamp() {
+        return rejectedTimestamp;
+    }
+
+    public void setVerifiedTimestamp(long verifiedTimestamp) {
+        this.verifiedTimestamp = verifiedTimestamp;
+    }
+
+    public boolean isAdminArchived() {
+        return adminArchived;
+    }
 }

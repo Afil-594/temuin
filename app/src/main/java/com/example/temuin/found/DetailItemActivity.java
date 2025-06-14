@@ -121,6 +121,7 @@ public class DetailItemActivity extends AppCompatActivity {
 
         // Bottom Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_barang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
@@ -131,7 +132,7 @@ public class DetailItemActivity extends AppCompatActivity {
                 startActivity(new Intent(DetailItemActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 Intent intent = new Intent(DetailItemActivity.this, LostItemsListActivity.class);
                 startActivity(intent);
                 finish();
@@ -161,7 +162,6 @@ public class DetailItemActivity extends AppCompatActivity {
         });
     }
 
-    // Callback interface
     public interface RoleCallback {
         void onRoleReceived(String role);
     }

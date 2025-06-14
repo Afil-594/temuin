@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.temuin.R;
 import com.example.temuin.lost.LostItem;
 import com.example.temuin.found.FoundItemsListActivity;
@@ -18,10 +20,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.*;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AdminItemDetailLostActivity extends AppCompatActivity {
 
-    private TextView tvName, tvNoHp, tvNamaBarang, tvLocation, tvDate, tvTime, tvStatus;
+    private TextView tvName, tvNoHp, tvNamaBarang, tvLocation, tvDate, tvStatus;
     private ImageView ivItemImage;
     private Button btnVerifikasi, btnTolak;
     private DatabaseReference databaseReference;
@@ -30,15 +34,15 @@ public class AdminItemDetailLostActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_item_detail);
+        // Pastikan nama layout sudah benar sesuai dengan file XML-mu
+        setContentView(R.layout.activity_admin_item_detail_lost);
 
         // Inisialisasi view
         tvName = findViewById(R.id.tv_detail_name);
         tvNoHp = findViewById(R.id.tv_detail_no_hp);
-        tvNamaBarang = findViewById(R.id.tv_detail_name);
+        tvNamaBarang = findViewById(R.id.tv_detail_nama_barang);
         tvLocation = findViewById(R.id.tv_detail_location);
         tvDate = findViewById(R.id.tv_detail_date);
-        tvTime = findViewById(R.id.tv_detail_time);
         tvStatus = findViewById(R.id.tv_detail_status);
         ivItemImage = findViewById(R.id.iv_detail_image);
         btnVerifikasi = findViewById(R.id.btn_verifikasi);
@@ -57,9 +61,15 @@ public class AdminItemDetailLostActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference("lost_items").child(itemId);
 
         // Ambil data dari database
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    Toast.makeText(AdminItemDetailLostActivity.this, "Data barang mungkin telah dihapus atau diarsipkan.", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+
                 LostItem item = snapshot.getValue(LostItem.class);
                 if (item != null) {
                     tvName.setText(item.getName());
@@ -67,21 +77,22 @@ public class AdminItemDetailLostActivity extends AppCompatActivity {
                     tvNamaBarang.setText(item.getNamaBarang());
                     tvLocation.setText(item.getLocation());
                     tvDate.setText(item.getDate());
-                    tvTime.setText(item.getTime());
                     tvStatus.setText(item.getStatus());
 
-                    if (item.getImagePath() != null) {
-                        File file = new File(item.getImagePath());
-                        if (file.exists()) {
-                            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                            ivItemImage.setImageBitmap(bitmap);
-                        } else {
-                            ivItemImage.setImageResource(android.R.color.darker_gray);
-                        }
+                    String status = item.getStatus();
+                    if ("belum diverifikasi".equals(status)) {
+                        btnVerifikasi.setVisibility(View.VISIBLE);
+                        btnTolak.setVisibility(View.VISIBLE);
+                    } else {
+                        btnVerifikasi.setVisibility(View.GONE);
+                        btnTolak.setVisibility(View.GONE);
                     }
-                } else {
-                    Toast.makeText(AdminItemDetailLostActivity.this, "Data barang tidak ditemukan", Toast.LENGTH_SHORT).show();
-                    finish();
+
+                    if (item.getImagePath() != null) {
+                        Glide.with(AdminItemDetailLostActivity.this)
+                                .load("file://" + item.getImagePath())
+                                .into(ivItemImage);
+                    }
                 }
             }
 
@@ -92,16 +103,18 @@ public class AdminItemDetailLostActivity extends AppCompatActivity {
             }
         });
 
-        // Tombol Verifikasi
         btnVerifikasi.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
-                    .setTitle("Verifikasi Barang")
+                    .setTitle("Verifikasi Laporan")
                     .setMessage("Apakah Anda yakin ingin memverifikasi laporan ini?")
                     .setPositiveButton("Ya", (dialog, which) -> {
-                        databaseReference.child("status").setValue("diverifikasi")
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("status", "diverifikasi");
+                        updates.put("verifiedTimestamp", ServerValue.TIMESTAMP);
+
+                        databaseReference.updateChildren(updates)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Laporan berhasil diverifikasi", Toast.LENGTH_SHORT).show();
-                                    finish(); // Kembali ke list
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(this, "Gagal verifikasi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -111,16 +124,18 @@ public class AdminItemDetailLostActivity extends AppCompatActivity {
                     .show();
         });
 
-        // Tombol Tolak
         btnTolak.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Tolak Laporan")
                     .setMessage("Apakah Anda yakin ingin menolak laporan ini?")
                     .setPositiveButton("Ya", (dialog, which) -> {
-                        databaseReference.child("status").setValue("ditolak")
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("status", "ditolak");
+                        updates.put("rejectedTimestamp", ServerValue.TIMESTAMP); // <-- TAMBAHKAN INI
+
+                        databaseReference.updateChildren(updates)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Laporan ditolak", Toast.LENGTH_SHORT).show();
-                                    finish();
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(this, "Gagal menolak laporan: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -130,18 +145,18 @@ public class AdminItemDetailLostActivity extends AppCompatActivity {
                     .show();
         });
 
-        // Bottom Nav (optional, bisa diubah sesuai kebutuhan admin)
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_hilang);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                startActivity(new Intent(this, HomeActivity.class));
-                return true;
-            } else if (id == R.id.nav_barang) {
                 startActivity(new Intent(this, AdminDashboardActivity.class));
                 return true;
-            } else if (id == R.id.nav_laporan) {
-                startActivity(new Intent(this, LostItemsListActivity.class));
+            } else if (id == R.id.nav_barang) {
+                startActivity(new Intent(this, LaporPenemuanActivity.class));
+                return true;
+            } else if (id == R.id.nav_hilang) {
+                startActivity(new Intent(this, LaporKehilanganActivity.class));
                 return true;
             }
             return false;

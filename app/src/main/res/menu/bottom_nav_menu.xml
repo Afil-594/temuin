@@ -2,14 +2,14 @@
     <item
         android:id="@+id/nav_barang"
         android:icon="@drawable/ic_barang"
-        android:title="Barang Hilang"
+        android:title="Ditemukan"
         android:fontFamily="@font/poppins_regular"/>
     <item
         android:id="@+id/nav_home"
         android:icon="@drawable/ic_home"
         android:title="Home" />
     <item
-        android:id="@+id/nav_laporan"
+        android:id="@+id/nav_hilang"
         android:icon="@drawable/ic_laporan"
-        android:title="Lapor Kehilangan" />
+        android:title="Hilang" />
 </menu>

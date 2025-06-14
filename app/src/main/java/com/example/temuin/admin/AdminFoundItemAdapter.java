@@ -46,13 +46,12 @@ public class AdminFoundItemAdapter extends RecyclerView.Adapter<AdminFoundItemAd
         FoundItem item = foundItemList.get(position);
         holder.tvName.setText(item.getName() != null ? item.getName() : "");
         holder.tvLocation.setText(item.getLocation() != null ? item.getLocation() : "");
-        holder.tvDate.setText(item.getDate() != null ? item.getDate() : ""); // Menambahkan tanggal
-        // Mengubah status ke lowercase
+        holder.tvDate.setText(item.getDate() != null ? item.getDate() : "");
         String statusText = item.getStatus() != null ? item.getStatus().toLowerCase() : "unknown";
         holder.tvStatus.setText(statusText);
 
         // Mengatur background berdasarkan status
-        if ("diklaim".equals(statusText)) {
+        if ("diverifikasi".equals(statusText)) {
             holder.tvStatus.setBackgroundResource(R.drawable.bg_status_green);
         } else {
             holder.tvStatus.setBackgroundResource(R.drawable.bg_status_red);
@@ -69,7 +68,7 @@ public class AdminFoundItemAdapter extends RecyclerView.Adapter<AdminFoundItemAd
                 }
             }
         } catch (Exception e) {
-            holder.ivItemImage.setImageResource(android.R.color.darker_gray); // Placeholder jika gagal
+            holder.ivItemImage.setImageResource(android.R.color.darker_gray);
         }
 
         // Mengatur aksi untuk button "Lihat Detail"
@@ -84,9 +83,6 @@ public class AdminFoundItemAdapter extends RecyclerView.Adapter<AdminFoundItemAd
                 intent.putExtra("ITEM_IMAGE", item.getImagePath() != null ? item.getImagePath() : "");
                 intent.putExtra("ITEM_STATUS", statusText);
                 ((Activity) context).startActivity(intent);
-            } else {
-                // Log atau toast untuk debugging
-                // Toast.makeText(context, "Context tidak valid", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -72,7 +72,7 @@ public class LostItemsListActivity extends AppCompatActivity {
         rvLostItems.setAdapter(adapter);
 
         databaseReference = FirebaseDatabase.getInstance()
-                .getReference("found_items")
+                .getReference("lost_items")
                 .orderByChild("status")
                 .equalTo("diverifikasi");
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -85,6 +85,15 @@ public class LostItemsListActivity extends AppCompatActivity {
                         lostItemList.add(item);
                     }
                 }
+                java.util.Collections.sort(lostItemList, (item1, item2) -> {
+                    String progress1 = item1.getProgress();
+                    String progress2 = item2.getProgress();
+
+                    int weight1 = progress1.equals("hilang") ? 0 : (progress1.equals("ditemukan") ? 1 : 2);
+                    int weight2 = progress2.equals("hilang") ? 0 : (progress2.equals("ditemukan") ? 1 : 2);
+
+                    return Integer.compare(weight1, weight2);
+                });
                 adapter.notifyDataSetChanged();
             }
 
@@ -132,12 +141,11 @@ public class LostItemsListActivity extends AppCompatActivity {
                 startActivity(new Intent(LostItemsListActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
-                // Sudah di halaman ini
+            } else if (id == R.id.nav_hilang) {
                 return true;
             }
             return false;
         });
-        // bottomNav.setSelectedItemId(R.id.nav_laporan); // Set item aktif
+        bottomNav.setSelectedItemId(R.id.nav_hilang);
     }
 }

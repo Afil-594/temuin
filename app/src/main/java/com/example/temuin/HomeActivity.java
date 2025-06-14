@@ -78,11 +78,6 @@ public class HomeActivity extends AppCompatActivity {
                         tvNama.setText(nama != null ? nama : "-");
                         tvJurusan.setText(jurusan != null ? jurusan : "-");
                         tvEmail.setText(email != null ? email : "-");
-
-                        // (Opsional) Tampilkan status admin
-                        if ("admin".equals(currentRole)) {
-                            Toast.makeText(HomeActivity.this, "Akun ini adalah admin", Toast.LENGTH_SHORT).show();
-                        }
                     }
                 }
 
@@ -116,7 +111,7 @@ public class HomeActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_home) {
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 startActivity(new Intent(HomeActivity.this, LostItemsListActivity.class));
                 finish();
                 return true;

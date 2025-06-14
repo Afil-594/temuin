@@ -86,6 +86,15 @@ public class FoundItemsListActivity extends AppCompatActivity {
                         foundItemList.add(item);
                     }
                 }
+                java.util.Collections.sort(foundItemList, (item1, item2) -> {
+                    String progress1 = item1.getProgress();
+                    String progress2 = item2.getProgress();
+
+                    int weight1 = progress1.equals("ditemukan") ? 0 : (progress1.equals("diklaim") ? 1 : 2);
+                    int weight2 = progress2.equals("ditemukan") ? 0 : (progress2.equals("diklaim") ? 1 : 2);
+
+                    return Integer.compare(weight1, weight2);
+                });
                 adapter.notifyDataSetChanged();
             }
 
@@ -126,13 +135,12 @@ public class FoundItemsListActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_barang) {
-                // Sudah di halaman ini
                 return true;
             } else if (id == R.id.nav_home) {
                 startActivity(new Intent(FoundItemsListActivity.this, HomeActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_laporan) {
+            } else if (id == R.id.nav_hilang) {
                 Intent intent = new Intent(FoundItemsListActivity.this, LostItemsListActivity.class);
                 startActivity(intent);
                 finish();

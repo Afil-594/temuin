@@ -45,7 +45,6 @@ public class LostItemAdapter extends RecyclerView.Adapter<LostItemAdapter.ViewHo
         holder.tvNamaBarang.setText(item.getNamaBarang() != null ? item.getNamaBarang() : "");
         holder.tvName.setText(item.getName() != null ? item.getName() : "");
         holder.tvNoHp.setText(item.getNoHp() != null ? item.getNoHp() : "");
-        // Mengubah status ke lowercase
         String statusText = item.getProgress() != null ? item.getProgress().toLowerCase() : "unknown";
         holder.tvStatus.setText(statusText);
 
@@ -80,7 +79,6 @@ public class LostItemAdapter extends RecyclerView.Adapter<LostItemAdapter.ViewHo
                 intent.putExtra("ITEM_NAMA_BARANG", item.getNamaBarang() != null ? item.getNamaBarang() : "");
                 intent.putExtra("ITEM_LOCATION", item.getLocation() != null ? item.getLocation() : "");
                 intent.putExtra("ITEM_DATE", item.getDate() != null ? item.getDate() : "");
-                intent.putExtra("ITEM_TIME", item.getTime() != null ? item.getTime() : "");
                 intent.putExtra("ITEM_IMAGE", item.getImagePath() != null ? item.getImagePath() : "");
                 intent.putExtra("ITEM_STATUS", statusText);
                 ((Activity) context).startActivity(intent);
